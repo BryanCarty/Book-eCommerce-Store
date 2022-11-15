@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Book_eCommerce_Store.DTOs.Products;
+using Book_eCommerce_Store.DTOs.Purchases;
 
 namespace Book_eCommerce_Store
 {
@@ -13,6 +14,8 @@ namespace Book_eCommerce_Store
         {
             CreateMap<Product, GetProductDTO>();
             CreateMap<CreateProductDTO, Product>();
+            CreateMap<Purchase, GetPurchaseDTO>();
+            CreateMap<CreatePurchaseDTO, Purchase>();
         }     
     }
 }

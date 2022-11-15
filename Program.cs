@@ -1,6 +1,7 @@
 global using Book_eCommerce_Store.Models;
 using Book_eCommerce_Store.data;
 using Book_eCommerce_Store.Services.ProductsService;
+using Book_eCommerce_Store.Services.PurchasesService;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +14,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 builder.Services.AddScoped<IProductsService, ProductsService>();
+builder.Services.AddScoped<IPurchasesService, PurchasesService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
