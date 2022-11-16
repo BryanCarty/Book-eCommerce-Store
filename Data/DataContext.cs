@@ -2,9 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Book_eCommerce_Store.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace Book_eCommerce_Store.data
+namespace Book_eCommerce_Store.Data
 {
     public class DataContext : DbContext
     {
@@ -14,7 +15,9 @@ namespace Book_eCommerce_Store.data
         }
 
 
-        public DbSet<Product> Products {get; set; }
+        public DbSet<PRODUCT> Products {get; set; }
         public DbSet<Purchase> Purchases {get; set;}
+        public DbSet<User> Users { get; set; }
+        public DbSet<Address> Addresses { get; set; }
     }
 }

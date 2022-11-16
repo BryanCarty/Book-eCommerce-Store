@@ -4,7 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Book_eCommerce_Store.DTOs.Products;
+using Book_eCommerce_Store.DTOs.Users;
 using Book_eCommerce_Store.DTOs.Purchases;
+using Book_eCommerce_Store.Data.Entities;
 
 namespace Book_eCommerce_Store
 {
@@ -12,8 +14,12 @@ namespace Book_eCommerce_Store
     {
         public AutoMapperProfile()
         {
-            CreateMap<Product, GetProductDTO>();
-            CreateMap<CreateProductDTO, Product>();
+            CreateMap<User, GetUserDTO>();
+            CreateMap<CreateUserDTO, User>();
+            CreateMap<PRODUCT, Book>();
+            CreateMap<CreateProductDTO, PRODUCT>();
+            CreateMap<PRODUCT, Stationary>();
+            CreateMap<PRODUCT, Product>();
             CreateMap<Purchase, GetPurchaseDTO>();
             CreateMap<CreatePurchaseDTO, Purchase>();
         }     

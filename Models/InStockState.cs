@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using Book_eCommerce_Store.data;
+using Book_eCommerce_Store.Data;
 using Book_eCommerce_Store.DTOs.Purchases;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,9 +18,9 @@ namespace Book_eCommerce_Store.Models
         public InStockState(Product product){
             this.product = product;
         }
-        public async Task<Response<GetPurchaseDTO>> purchaseProduct(CreatePurchaseDTO purchase, DataContext context, IMapper mapper)
+        public async Task<Response> purchaseProduct(CreatePurchaseDTO purchase, DataContext context, IMapper mapper)
         {
-            var response = new Response<GetPurchaseDTO>();
+            var response = new Response();
             if(this.product.Quantity >= purchase.Quantity){
                 this.product.Quantity-=purchase.Quantity;
                 await context.SaveChangesAsync();
@@ -42,9 +42,9 @@ namespace Book_eCommerce_Store.Models
             return response;
         }
 
-        public async Task<Response<GetPurchaseDTO>> returnProductAsync(int purchaseId, DataContext context, IMapper mapper)
+        public async Task<Response> returnProductAsync(int purchaseId, DataContext context, IMapper mapper)
         {
-            var response = new Response<GetPurchaseDTO>();
+            var response = new Response();
             if(product.Quantity >100){
                 response.Success=true;
                 response.Message = "We are not currently accepting returns at this time as our supply is too large.";

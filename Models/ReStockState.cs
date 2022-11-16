@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using Book_eCommerce_Store.data;
+using Book_eCommerce_Store.Data;
 using Book_eCommerce_Store.DTOs.Purchases;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,17 +17,17 @@ namespace Book_eCommerce_Store.Models
         public ReStockState(Product product){
             this.product = product;
         }
-        public async Task<Response<GetPurchaseDTO>> purchaseProduct(CreatePurchaseDTO purchase, DataContext context, IMapper mapper)
+        public async Task<Response> purchaseProduct(CreatePurchaseDTO purchase, DataContext context, IMapper mapper)
         {
-            var response = new Response<GetPurchaseDTO>();
+            var response = new Response();
             response.Success=true;
             response.Message = "We are currently restocking this product. It'll be available shortly";
             return response;
         }
 
-        public async Task<Response<GetPurchaseDTO>> returnProductAsync(int purchaseId, DataContext context, IMapper mapper)
+        public async Task<Response> returnProductAsync(int purchaseId, DataContext context, IMapper mapper)
         {
-            var response = new Response<GetPurchaseDTO>();
+            var response = new Response();
             Purchase purchase = await context.Purchases.FirstOrDefaultAsync(p => p.PurchaseId == purchaseId);
             if (purchase == null){
                 throw new Exception(message: "We do not have this purchase on record");

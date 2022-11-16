@@ -1,7 +1,9 @@
 global using Book_eCommerce_Store.Models;
-using Book_eCommerce_Store.data;
+using Book_eCommerce_Store.Data;
 using Book_eCommerce_Store.Services.ProductsService;
+using Book_eCommerce_Store.Services.ProductsService.Factory;
 using Book_eCommerce_Store.Services.PurchasesService;
+using Book_eCommerce_Store.Services.UsersService;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,7 +15,12 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
-builder.Services.AddScoped<IProductsService, ProductsService>();
+builder.Services.AddScoped<IProductFactory, ProductFactory>();
+builder.Services.AddScoped<IUsersService, UsersService>();
+builder.Services.AddScoped<BooksService>()
+    .AddScoped<IProductsService, BooksService>(s => s.GetService<BooksService>());
+builder.Services.AddScoped<StationaryService>()
+    .AddScoped<IProductsService, StationaryService>(s => s.GetService<StationaryService>());
 builder.Services.AddScoped<IPurchasesService, PurchasesService>();
 var app = builder.Build();
 

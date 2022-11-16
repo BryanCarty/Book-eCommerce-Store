@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace Book_eCommerce_Store.Models
 {
-    public class Response<T>
+    public class Response
     {
-        public T? Data { get; set; }
+        public Object? Data { get; set; }
         public bool Success { get; set; } = true;
         public string Message { get; set; } = string.Empty;
     }

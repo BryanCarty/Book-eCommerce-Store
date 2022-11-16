@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Book_eCommerce_Store.DTOs.Products;
 using Book_eCommerce_Store.Services.ProductsService;
+using Book_eCommerce_Store.Services.ProductsService.Factory;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Book_eCommerce_Store.Controllers
@@ -12,31 +13,32 @@ namespace Book_eCommerce_Store.Controllers
     [Route("api/v1/[controller]")]
     public class ProductsController : ControllerBase
     {
-        private readonly IProductsService productsService;
+        private readonly IProductFactory productFactory;
 
-        public ProductsController(IProductsService productsService){
-            this.productsService = productsService;
+        public ProductsController(IProductFactory productFactory)
+        {
+            this.productFactory = productFactory;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<List<GetProductDTO>>> Get()
+        [HttpGet("/{productCategory}")]
+        public async Task<ActionResult<List<GetProductDTO>>> Get(ProductCategory productCategory)
         {
-            var response = await this.productsService.Get();
+            var response = await this.productFactory.GetProductsService(productCategory).Get();
             if (response.Success == true)
             {
                 response.Message = "Http Status OK";
                 return Ok(response);
             }
             return StatusCode(StatusCodes.Status500InternalServerError, response);
-            
+
         }
 
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<GetProductDTO>> GetById(int id)
+        [HttpGet("/{productCategory}/{id}")]
+        public async Task<ActionResult<GetProductDTO>> GetById(ProductCategory productCategory, int id)
         {
-            var response = await this.productsService.GetById(id);
-            if (response.Success==true)
+            var response = await this.productFactory.GetProductsService(productCategory).GetById(id);
+            if (response.Success == true)
             {
                 response.Message = "Http Status OK";
                 return Ok(response);
@@ -44,11 +46,11 @@ namespace Book_eCommerce_Store.Controllers
             return StatusCode(StatusCodes.Status500InternalServerError, response);
         }
 
-        [HttpPost]
-        public async Task<ActionResult<GetProductDTO>> CreateProduct(CreateProductDTO newProduct)
+        [HttpPost("/{productCategory}")]
+        public async Task<ActionResult<GetProductDTO>> CreateProduct(ProductCategory productCategory, CreateProductDTO newProduct)
         {
-            var response = await this.productsService.CreateProduct(newProduct);
-            if (response.Success==true)
+            var response = await this.productFactory.GetProductsService(productCategory).Create(newProduct);
+            if (response.Success == true)
             {
                 response.Message = "Http Status OK";
                 return Ok(response);
@@ -56,33 +58,34 @@ namespace Book_eCommerce_Store.Controllers
             return StatusCode(StatusCodes.Status500InternalServerError, response);
         }
 
-        [HttpPut("{id}")]
-        public async Task<ActionResult<GetProductDTO>> UpdateProductById(int id, UpdateProductDTO updatedProduct)
+        [HttpPut("/{productCategory}/{id}")]
+        public async Task<ActionResult<GetProductDTO>> UpdateProductById(ProductCategory productCategory, int id, UpdateProductDTO updatedProduct)
         {
-            var response = await this.productsService.UpdateProduct(id, updatedProduct);
-            if (response.Success==true)
+            var response = await this.productFactory.GetProductsService(productCategory).Update(id, updatedProduct);
+            if (response.Success == true)
             {
                 response.Message = "Http Status OK";
                 return Ok(response);
             }
-            if (response.Message == ""){
+            if (response.Message == "")
+            {
                 response.Message = "Not Found";
                 return StatusCode(StatusCodes.Status404NotFound, response);
             }
             return StatusCode(StatusCodes.Status500InternalServerError, response);
         }
 
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<Response<GetProductDTO>>> Delete(int id)//FIx this -> Should be idempotent!
+        [HttpDelete("/{productCategory}/{id}")]
+        public async Task<ActionResult<Response>> Delete(ProductCategory productCategory, int id)//FIx this -> Should be idempotent!
         {
-            var response = await this.productsService.DeleteProduct(id);
-            if (response.Success==true)
+            var response = await this.productFactory.GetProductsService(productCategory).Delete(id);
+            if (response.Success == true)
             {
                 response.Message = "Http Status OK";
                 return Ok(response);
             }
             return StatusCode(StatusCodes.Status500InternalServerError, response);
-            
+
         }
     }
 }

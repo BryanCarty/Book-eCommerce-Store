@@ -1,11 +1,13 @@
+using Book_eCommerce_Store.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Book_eCommerce_Store.DTOs.Products
+namespace Book_eCommerce_Store.Data.Entities
 {
-    public class GetProductDTO
+    
+    public class PRODUCT
     {
         public int Id { get; set; }
         public string Name { get; set; } = "";

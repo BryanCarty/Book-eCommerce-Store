@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using Book_eCommerce_Store.data;
+using Book_eCommerce_Store.Data;
 using Book_eCommerce_Store.DTOs.Purchases;
 
 namespace Book_eCommerce_Store.Models
@@ -36,11 +36,11 @@ namespace Book_eCommerce_Store.Models
             }
             
         }
-        public Task<Response<GetPurchaseDTO>> purchaseProduct(CreatePurchaseDTO purchase, DataContext context, IMapper mapper){
+        public Task<Response> purchaseProduct(CreatePurchaseDTO purchase, DataContext context, IMapper mapper){
             return this.currentState.purchaseProduct(purchase, context, mapper);
         } //user wants to purchase the product. i.e. quantity in db is decreased.
 
-        public Task<Response<GetPurchaseDTO>> returnProduct(int purchaseId, DataContext context, IMapper mapper){
+        public Task<Response> returnProduct(int purchaseId, DataContext context, IMapper mapper){
             return this.currentState.returnProductAsync(purchaseId, context, mapper);
         } //user wants to return the product they previously bought. i.e. quantity in db increases.
         

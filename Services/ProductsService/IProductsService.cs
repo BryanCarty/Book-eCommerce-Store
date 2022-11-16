@@ -8,14 +8,10 @@ namespace Book_eCommerce_Store.Services.ProductsService
 {
     public interface IProductsService
     {
-        Task<Response<List<GetProductDTO>>> Get();
-
-        Task<Response<GetProductDTO>> GetById(int id);
-
-        Task<Response<GetProductDTO>> CreateProduct(CreateProductDTO newProduct);
-
-        Task<Response<GetProductDTO>> UpdateProduct(int id, UpdateProductDTO updatedProduct);
-
-        Task<Response<GetProductDTO>> DeleteProduct(int id);
+        Task<Response> Get();
+        Task<Response> GetById(int id);
+        Task<Response> Create(CreateProductDTO newProduct);
+        Task<Response> Update(int id, UpdateProductDTO updatedProduct);
+        Task<Response> Delete(int id);
     }
 }

@@ -33,7 +33,7 @@ namespace Book_eCommerce_Store.Controllers
 
 
         [HttpDelete("{product_id}/{purchase_id}")]
-        public async Task<ActionResult<Response<GetPurchaseDTO>>> ReturnPurchase(int product_id, int purchase_id)
+        public async Task<ActionResult<Response>> ReturnPurchase(int product_id, int purchase_id)
         {
             var response = await this.purchasesService.ReturnPurchase(product_id, purchase_id);
             if (response.Success==true)
