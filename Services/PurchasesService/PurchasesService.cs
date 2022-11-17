@@ -26,12 +26,21 @@ namespace Book_eCommerce_Store.Services.PurchasesService
             var response = new Response();
             try{
                 var dbProduct = await this.context.Products.FirstOrDefaultAsync(p => p.Id == product_id);
-                dbProduct = mapper.Map<Product>(dbProduct);
+
                 if(dbProduct == null){
                     throw new Exception(message: "A product with this id does not exist");
                 }
-                dbProduct.init();
-                response = await dbProduct.returnProduct(purchase_id, this.context, this.mapper);
+                Product product = new()
+                {
+                    Id = dbProduct.Id,
+                    Name = dbProduct.Name,
+                    Description = dbProduct.Description,
+                    PriceInCent = dbProduct.PriceInCent,
+                    Quantity = dbProduct.Quantity,
+                    ProductCategory = dbProduct.ProductCategory
+                };
+                product.init();
+                response = await product.returnProduct(purchase_id, this.context, this.mapper);
                 
             }catch(Exception ex){
                 response.Success=false;
@@ -49,9 +58,17 @@ namespace Book_eCommerce_Store.Services.PurchasesService
                 if(dbProduct == null){
                     throw new Exception(message: "A product with this id does not exist");
                 }
-                dbProduct = mapper.Map<Product>(dbProduct);
-                dbProduct.init();
-                response = await dbProduct.purchaseProduct(newPurchase, this.context, this.mapper);
+                Product product = new()
+                {
+                    Id = dbProduct.Id,
+                    Name = dbProduct.Name,
+                    Description = dbProduct.Description,
+                    PriceInCent = dbProduct.PriceInCent,
+                    Quantity = dbProduct.Quantity,
+                    ProductCategory = dbProduct.ProductCategory
+                };
+                product.init();
+                response = await product.purchaseProduct(newPurchase, this.context, this.mapper);
             }catch(Exception ex){
                 response.Success=false;
                 response.Message = ex.Message;

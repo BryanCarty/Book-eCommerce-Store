@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Book_eCommerce_Store.Controllers
 {
     [ApiController]
-    [Route("api/v1/[controller]")]
+    [Route("api/[controller]")]
     public class ProductsController : ControllerBase
     {
         private readonly IProductFactory productFactory;
@@ -20,7 +20,7 @@ namespace Book_eCommerce_Store.Controllers
             this.productFactory = productFactory;
         }
 
-        [HttpGet("/{productCategory}")]
+        [HttpGet("{productCategory}")]
         public async Task<ActionResult<List<GetProductDTO>>> Get(ProductCategory productCategory)
         {
             var response = await this.productFactory.GetProductsService(productCategory).Get();
@@ -34,7 +34,7 @@ namespace Book_eCommerce_Store.Controllers
         }
 
 
-        [HttpGet("/{productCategory}/{id}")]
+        [HttpGet("{productCategory}/{id}")]
         public async Task<ActionResult<GetProductDTO>> GetById(ProductCategory productCategory, int id)
         {
             var response = await this.productFactory.GetProductsService(productCategory).GetById(id);
@@ -46,7 +46,7 @@ namespace Book_eCommerce_Store.Controllers
             return StatusCode(StatusCodes.Status500InternalServerError, response);
         }
 
-        [HttpPost("/{productCategory}")]
+        [HttpPost("{productCategory}")]
         public async Task<ActionResult<GetProductDTO>> CreateProduct(ProductCategory productCategory, CreateProductDTO newProduct)
         {
             var response = await this.productFactory.GetProductsService(productCategory).Create(newProduct);
@@ -58,7 +58,7 @@ namespace Book_eCommerce_Store.Controllers
             return StatusCode(StatusCodes.Status500InternalServerError, response);
         }
 
-        [HttpPut("/{productCategory}/{id}")]
+        [HttpPut("{productCategory}/{id}")]
         public async Task<ActionResult<GetProductDTO>> UpdateProductById(ProductCategory productCategory, int id, UpdateProductDTO updatedProduct)
         {
             var response = await this.productFactory.GetProductsService(productCategory).Update(id, updatedProduct);
@@ -75,7 +75,7 @@ namespace Book_eCommerce_Store.Controllers
             return StatusCode(StatusCodes.Status500InternalServerError, response);
         }
 
-        [HttpDelete("/{productCategory}/{id}")]
+        [HttpDelete("{productCategory}/{id}")]
         public async Task<ActionResult<Response>> Delete(ProductCategory productCategory, int id)//FIx this -> Should be idempotent!
         {
             var response = await this.productFactory.GetProductsService(productCategory).Delete(id);
