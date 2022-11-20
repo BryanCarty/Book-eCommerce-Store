@@ -54,7 +54,7 @@ namespace Book_eCommerce_Store.Controllers
             return StatusCode(StatusCodes.Status500InternalServerError, response);
         }
 
-        [HttpPut("{id}")]
+        [HttpPatch("{id}")]
         public async Task<ActionResult<GetUserDTO>> UpdateUserById(int id, UpdateUserDTO updatedUser)
         {
             var response = await this._userService.UpdateUser(id, updatedUser);

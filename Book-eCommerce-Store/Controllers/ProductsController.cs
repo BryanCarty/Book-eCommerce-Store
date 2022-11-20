@@ -58,7 +58,7 @@ namespace Book_eCommerce_Store.Controllers
             return StatusCode(StatusCodes.Status500InternalServerError, response);
         }
 
-        [HttpPut("{productCategory}/{id}")]
+        [HttpPatch("{productCategory}/{id}")]
         public async Task<ActionResult<GetProductDTO>> UpdateProductById(ProductCategory productCategory, int id, UpdateProductDTO updatedProduct)
         {
             var response = await this.productFactory.GetProductsService(productCategory).Update(id, updatedProduct);
