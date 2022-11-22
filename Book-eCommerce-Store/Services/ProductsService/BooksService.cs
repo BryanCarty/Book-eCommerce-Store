@@ -40,7 +40,7 @@ namespace Book_eCommerce_Store.Services.ProductsService
             return response;
         }
 
-        public async Task<Response> GetById(int id)
+        public async Task<Response> GetById(int id, bool trackProduct)
         {
             var response = new Response();
             try
@@ -52,6 +52,13 @@ namespace Book_eCommerce_Store.Services.ProductsService
             {
                 response.Success = false;
                 response.Message = ex.Message;
+            }
+            finally
+            {
+                if(!trackProduct){
+                    this.context.ChangeTracker.Clear();
+                    this.context.SaveChanges();
+                }
             }
             return response;
         }

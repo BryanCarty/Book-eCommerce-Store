@@ -1,6 +1,8 @@
-﻿namespace Book_eCommerce_Store.Models
+﻿using Book_eCommerce_Store.Data.Entities;
+
+namespace Book_eCommerce_Store.Models
 {
-    public class Book : Product
+    public class Book : PRODUCT
     {
         public Book() { }
         public Book(int Id, string Name, string Description, int priceInCent, int Quantity,
