@@ -1,0 +1,22 @@
+@page "/ProductPage"
+
+<PageTitle>ProductPage</PageTitle>
+
+<div class="page">
+    <div class="sidebar">
+        <UserMenu />
+    </div>
+
+    <main>
+        <div class="top-row px-4">
+            @* <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a> *@
+            <strong> ProductPage Content </strong>
+        </div>
+
+        <article class="content px-4">
+            <ProductCard />
+            <ProductCard />
+            @* <BlazorTestProject.Pages.ProductCard /> *@
+        </article>
+    </main>
+</div>
