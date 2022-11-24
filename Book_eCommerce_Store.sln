@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Book eCommerce Store", "Boo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Book_eCommerce_Store.Test", "Book-eCommerce-Store.Test\Book_eCommerce_Store.Test.csproj", "{6BCDBB6A-182F-4605-BBBD-9955422FB228}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorTestProject", "BlazorTestProject\BlazorTestProject.csproj", "{1510D8DC-294A-43D2-9023-CC659C9549F4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{6BCDBB6A-182F-4605-BBBD-9955422FB228}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6BCDBB6A-182F-4605-BBBD-9955422FB228}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6BCDBB6A-182F-4605-BBBD-9955422FB228}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1510D8DC-294A-43D2-9023-CC659C9549F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1510D8DC-294A-43D2-9023-CC659C9549F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1510D8DC-294A-43D2-9023-CC659C9549F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1510D8DC-294A-43D2-9023-CC659C9549F4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
