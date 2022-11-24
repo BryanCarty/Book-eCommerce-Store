@@ -10,6 +10,7 @@ namespace Book_eCommerce_Store.DTOs.Orders
         public int orderId { get; set;}
         public List<Purchase>? purchasedProducts { get; set; }
         public int subtotalInCent {get; set;} //subtotal stored as cent to avoid floating point errors.
+        public string discountName {get; set;}
         public int discountInCent {get; set;} //discounts in cent to avoid floating point errors.
         public int totalInCent {get; set;} //total in cent to avoid floating point errrors.
     }
