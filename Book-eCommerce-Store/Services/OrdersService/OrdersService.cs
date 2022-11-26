@@ -28,6 +28,16 @@ namespace Book_eCommerce_Store.Services.OrdersService
         public async Task<Response> CreateOrder(CreateOrderDTO newOrder)
         {
             var response = new Response();
+
+            var discounttotalQuantityCount = 0;
+            var discountName = "";
+            var discountReduction = 0.0;
+
+            //Lists to hold the names of the items in dborder and the categories
+            List<string> itemNamesList = new List<string>();
+            List<ProductCategory> itemProductCategoriesList = new List<ProductCategory>();
+            List<int> individualItemCount = new List<int>();
+
             try{ 
                 if (newOrder.products == null || !newOrder.products.Any()){
                     throw new Exception(message: "products list is empty");
@@ -69,13 +79,67 @@ namespace Book_eCommerce_Store.Services.OrdersService
                     mappedToPurchase.ProductId = mappedToProduct.Id;
                     order.subtotalInCent+=mappedToPurchase.PriceInCent*mappedToPurchase.Quantity;
                     order.purchasedProducts.Add(mappedToPurchase);
+
+                    individualItemCount.Add(mappedToPurchase.Quantity);  //keeps track of the quantity of individual item count, eg count of the da vinci code's bought
+                    discounttotalQuantityCount += mappedToPurchase.Quantity;  //keeps track of the total quantity for use in bulk buying
+                    itemProductCategoriesList.Add(mappedToPurchase.ProductCategory); 
+                    itemNamesList.Add(mappedToPurchase.Name);
                 }
 
+                //Discounts
+                String[] itemNamesArray = itemNamesList.ToArray();
+                ProductCategory[] itemProductCatagoriesArray = itemProductCategoriesList.ToArray();
+                int[] itemCountArray = individualItemCount.ToArray();
 
-                //Discount could be called here but may make more sense to call at end, when all items have been looped through and subtotalInCent is known
-                order.discountInCent = 0;
+                //Specials for specific items
+                //Summer Special can only be aquired once
+                for (int i = 0; i < itemNamesArray.Length; i++) 
+                {
+                    if(discounttotalQuantityCount >= 5 & itemCountArray[i] >= 1 & itemNamesArray[i] == "The Da Vinci Code") {
+                        iDiscount SummerSpecial = new summerSpecialDiscount(new basicDiscount());
+                        discountName += SummerSpecial.GetDiscountName() + ", ";
+                        discountReduction += SummerSpecial.getReduction();
+                        break;
+                    }
+                    if(itemCountArray[i] >= 4 & itemNamesArray[i] == "Helix Black Nylon Pencil case") {
+                        iDiscount SummerSpecial = new summerSpecialDiscount(new basicDiscount());
+                        discountName += SummerSpecial.GetDiscountName() + ", ";
+                        discountReduction += SummerSpecial.getReduction();
+                        break;
+                    }   
+                }
 
-                order.totalInCent = order.subtotalInCent - order.discountInCent;   
+                //Specific category discounts ie 2 for books, 3 for stationary etc
+                for (int i = 0; i < itemProductCatagoriesArray.Length; i++) 
+                {
+                    if(itemCountArray[i] >= 1 & (int)itemProductCatagoriesArray[i] == 2) {
+                        iDiscount WinterSpecial = new winterMadnessDiscount(new basicDiscount());
+                        discountName += WinterSpecial.GetDiscountName() + ", ";
+                        discountReduction += WinterSpecial.getReduction();
+                        break;
+                    }
+                }
+
+                //Bulk buying discounts
+                if(discounttotalQuantityCount >= 3) {
+                    iDiscount basic = new basicDiscount();
+                    discountName += basic.GetDiscountName() + ", ";
+                    discountReduction += basic.getReduction();
+                }
+                if(discounttotalQuantityCount >= 9) {
+                    iDiscount basic = new basicDiscount();
+                    discountName += basic.GetDiscountName() + ", ";
+                    discountReduction += basic.getReduction();
+                }
+
+                order.discountName = discountName;
+                order.discountInCent = Convert.ToInt32(order.subtotalInCent * discountReduction);
+
+                if(order.discountInCent == 0) {
+                    order.discountName = "No Discount Applied";
+                }
+                
+                order.totalInCent = order.subtotalInCent - order.discountInCent;  
 
                 this.context.Add(order);
                 await this.context.SaveChangesAsync();
@@ -170,6 +234,11 @@ namespace Book_eCommerce_Store.Services.OrdersService
         public async Task<Response> UpdateOrder(int id, UpdateOrderDTO updatedOrder)
         {            
             var response = new Response();
+
+            var discountName = "";
+            var discountReduction = 0.0;
+            var discounttotalQuantityCount = 0;
+
             //get order
             var dbOrder = await this.context.Orders.FirstOrDefaultAsync(order => order.orderId == id);
             try{ 
@@ -322,9 +391,75 @@ namespace Book_eCommerce_Store.Services.OrdersService
 
             //CHECK IF APPLICABLE FOR A DISCOUNT
             //GET DISCOUNT HERE
-            var discount = 0;
 
-            dbOrder.totalInCent = dbOrder.subtotalInCent-discount;
+            //Lists to hold the names of the items in dborder and the categories
+            List<string> itemNamesList = new List<string>();
+            List<ProductCategory> itemProductCategoriesList = new List<ProductCategory>();
+            List<int> individualItemCount = new List<int>();
+
+            //go through each purchase in dbOrder
+            foreach (Purchase item in dbOrder.purchasedProducts) 
+            { 
+	            discounttotalQuantityCount += item.Quantity;
+                itemProductCategoriesList.Add(item.ProductCategory);
+                itemNamesList.Add(item.Name);
+                individualItemCount.Add(item.Quantity);
+            }
+            
+            //Convert Lists to Array's
+            String[] itemNamesArray = itemNamesList.ToArray();
+            ProductCategory[] itemProductCatagoriesArray = itemProductCategoriesList.ToArray();
+            int[] itemCountArray = individualItemCount.ToArray();
+
+            //Specials for specific items
+            //Summer Special can only be aquired once
+            for (int i = 0; i < itemNamesArray.Length; i++) 
+            {
+                if(discounttotalQuantityCount >= 5 & itemCountArray[i] >= 1 & itemNamesArray[i] == "The Da Vinci Code") {
+                    iDiscount SummerSpecial = new summerSpecialDiscount(new basicDiscount());
+                    discountName += SummerSpecial.GetDiscountName() + ", ";
+                    discountReduction += SummerSpecial.getReduction();
+                    break;
+                }
+                if(itemCountArray[i] >= 4 & itemNamesArray[i] == "Helix Black Nylon Pencil case") {
+                    iDiscount SummerSpecial = new summerSpecialDiscount(new basicDiscount());
+                    discountName += SummerSpecial.GetDiscountName() + ", ";
+                    discountReduction += SummerSpecial.getReduction();
+                    break;
+                }   
+            }
+
+            //Specific category discounts ie 2 for books, 3 for stationary etc
+            for (int i = 0; i < itemProductCatagoriesArray.Length; i++) 
+            {
+                if(itemCountArray[i] >= 1 & (int)itemProductCatagoriesArray[i] == 2) {
+                    iDiscount WinterSpecial = new winterMadnessDiscount(new basicDiscount());
+                    discountName += WinterSpecial.GetDiscountName() + ", ";
+                    discountReduction += WinterSpecial.getReduction();
+                    break;
+                }
+            }
+
+            //Bulk buying discounts
+            if(discounttotalQuantityCount >= 3) {
+                iDiscount basic = new basicDiscount();
+                discountName += basic.GetDiscountName() + ", ";
+                discountReduction += basic.getReduction();
+            }
+            if(discounttotalQuantityCount >= 9) {
+                iDiscount basic = new basicDiscount();
+                discountName += basic.GetDiscountName() + ", ";
+                discountReduction += basic.getReduction();
+            }
+
+            dbOrder.discountName = discountName;
+            dbOrder.discountInCent = Convert.ToInt32(dbOrder.subtotalInCent * discountReduction);
+
+            if(dbOrder.discountInCent == 0) {
+                dbOrder.discountName = "No Discount Applied";
+            }
+
+            dbOrder.totalInCent = dbOrder.subtotalInCent-dbOrder.discountInCent;
             await this.context.SaveChangesAsync();
             response.Data = this.mapper.Map<GetOrderDTO>(dbOrder);
             return response;
