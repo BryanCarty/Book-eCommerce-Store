@@ -103,10 +103,10 @@ namespace Book_eCommerce_Store.Controllers
 
         }
 
-        [HttpPut("{id}/{status}")]
-        public async Task<ActionResult<GetOrderDTO>> UpdateOrderById(int id, String status)
+        [HttpPut("{id}/status")]
+        public async Task<ActionResult<GetOrderDTO>> UpdateOrderById(int id, OrderStatus status)
         {
-            var response = await this.ordersService.UpdateOrderStatus(id, status);
+            var response = await this.ordersService.UpdateOrderStatus(id, status.status);
             if (response.Success == true)
             {
                 response.Message = "Http Status OK";
