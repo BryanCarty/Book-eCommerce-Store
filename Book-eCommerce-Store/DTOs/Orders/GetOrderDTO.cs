@@ -13,5 +13,6 @@ namespace Book_eCommerce_Store.DTOs.Orders
         public string discountName {get; set;}
         public int discountInCent {get; set;} //discounts in cent to avoid floating point errors.
         public int totalInCent {get; set;} //total in cent to avoid floating point errrors.
+        public string status {get; set;}
     }
 }

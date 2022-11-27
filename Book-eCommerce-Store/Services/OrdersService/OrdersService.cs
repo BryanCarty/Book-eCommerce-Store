@@ -27,441 +27,67 @@ namespace Book_eCommerce_Store.Services.OrdersService
         }
         public async Task<Response> CreateOrder(CreateOrderDTO newOrder)
         {
-            var response = new Response();
-
-            var discounttotalQuantityCount = 0;
-            var discountName = "";
-            var discountReduction = 0.0;
-
-            //Lists to hold the names of the items in dborder and the categories
-            List<string> itemNamesList = new List<string>();
-            List<ProductCategory> itemProductCategoriesList = new List<ProductCategory>();
-            List<int> individualItemCount = new List<int>();
-
-            try{ 
-                if (newOrder.products == null || !newOrder.products.Any()){
-                    throw new Exception(message: "products list is empty");
-                }
-                Order order = new Order();
-                order.purchasedProducts = new List<Purchase>();
-                foreach (OrderItem item in newOrder.products) 
-                { // Loop through List with foreach
-
-                    //get product
-                    var product = await this.productFactory.GetProductsService(item.ProductCategory).GetById(item.itemId, false);
-                    
-                    if (product == null || product.Data == null)
-                    {
-                        throw new Exception("a product you listed does not exist");
-                    }
-
-                    PRODUCT mappedToProduct;
-                    if (item.ProductCategory == ProductCategory.Books)
-                    {
-                        mappedToProduct = this.mapper.Map<PRODUCT>((Book)product.Data);
-                    }
-                    else
-                    {
-                        mappedToProduct = this.mapper.Map<PRODUCT>((Stationary)product.Data);
-                    }
-                    
-                    if (mappedToProduct.Quantity<item.itemQuantity)
-                    {
-                        throw new Exception("Order can't be placed. We only have "+ mappedToProduct.Quantity+" '"+ mappedToProduct.Name+"'");
-                    }
-                    
-                    //Reduce product quantity in db
-                    this.context.Database.ExecuteSqlRaw("UPDATE Products SET Quantity = "+(mappedToProduct.Quantity-item.itemQuantity)+" WHERE Id = "+mappedToProduct.Id+";");
-                    await this.context.SaveChangesAsync();
-                    var mappedToPurchase = this.mapper.Map<Purchase>(mappedToProduct);
-                    mappedToPurchase.Quantity = item.itemQuantity;
-                    mappedToPurchase.PurchaseId=null;
-                    mappedToPurchase.ProductId = mappedToProduct.Id;
-                    order.subtotalInCent+=mappedToPurchase.PriceInCent*mappedToPurchase.Quantity;
-                    order.purchasedProducts.Add(mappedToPurchase);
-
-                    individualItemCount.Add(mappedToPurchase.Quantity);  //keeps track of the quantity of individual item count, eg count of the da vinci code's bought
-                    discounttotalQuantityCount += mappedToPurchase.Quantity;  //keeps track of the total quantity for use in bulk buying
-                    itemProductCategoriesList.Add(mappedToPurchase.ProductCategory); 
-                    itemNamesList.Add(mappedToPurchase.Name);
-                }
-
-                //Discounts
-                String[] itemNamesArray = itemNamesList.ToArray();
-                ProductCategory[] itemProductCatagoriesArray = itemProductCategoriesList.ToArray();
-                int[] itemCountArray = individualItemCount.ToArray();
-
-                //Specials for specific items
-                //Summer Special can only be aquired once
-                for (int i = 0; i < itemNamesArray.Length; i++) 
-                {
-                    if(discounttotalQuantityCount >= 5 & itemCountArray[i] >= 1 & itemNamesArray[i] == "The Da Vinci Code") {
-                        iDiscount SummerSpecial = new summerSpecialDiscount(new basicDiscount());
-                        discountName += SummerSpecial.GetDiscountName() + ", ";
-                        discountReduction += SummerSpecial.getReduction();
-                        break;
-                    }
-                    if(itemCountArray[i] >= 4 & itemNamesArray[i] == "Helix Black Nylon Pencil case") {
-                        iDiscount SummerSpecial = new summerSpecialDiscount(new basicDiscount());
-                        discountName += SummerSpecial.GetDiscountName() + ", ";
-                        discountReduction += SummerSpecial.getReduction();
-                        break;
-                    }   
-                }
-
-                //Specific category discounts ie 2 for books, 3 for stationary etc
-                for (int i = 0; i < itemProductCatagoriesArray.Length; i++) 
-                {
-                    if(itemCountArray[i] >= 1 & (int)itemProductCatagoriesArray[i] == 2) {
-                        iDiscount WinterSpecial = new winterMadnessDiscount(new basicDiscount());
-                        discountName += WinterSpecial.GetDiscountName() + ", ";
-                        discountReduction += WinterSpecial.getReduction();
-                        break;
-                    }
-                }
-
-                //Bulk buying discounts
-                if(discounttotalQuantityCount >= 3) {
-                    iDiscount basic = new basicDiscount();
-                    discountName += basic.GetDiscountName() + ", ";
-                    discountReduction += basic.getReduction();
-                }
-                if(discounttotalQuantityCount >= 9) {
-                    iDiscount basic = new basicDiscount();
-                    discountName += basic.GetDiscountName() + ", ";
-                    discountReduction += basic.getReduction();
-                }
-
-                order.discountName = discountName;
-                order.discountInCent = Convert.ToInt32(order.subtotalInCent * discountReduction);
-
-                if(order.discountInCent == 0) {
-                    order.discountName = "No Discount Applied";
-                }
-                
-                order.totalInCent = order.subtotalInCent - order.discountInCent;  
-
-                this.context.Add(order);
-                await this.context.SaveChangesAsync();
-                
-                response.Data = this.mapper.Map<GetOrderDTO>(order);
-            }catch(Exception ex){
-                response.Success=false;
-                response.Message = ex.Message;
-            }
-            return response;
+           var response = await Order.createOrder(newOrder, this.context, this.mapper, this.productFactory);
+           return response;
         }
 
         public async Task<Response> DeleteOrder(int id)
         {
             var response = new Response();
-            try{
-                var dbOrder = await this.context.Orders.FirstOrDefaultAsync(order => order.orderId == id);
-                if(dbOrder == null){
-                    return response;
-                }
-                dbOrder.purchasedProducts = this.context.Purchases
-                    .FromSqlRaw("Select * from Purchases WHERE orderId = "+dbOrder.orderId)
-                    .ToList<Purchase>();
-
-                //Get count of products so can increase stock accordingly
-                var itemList = new List<OrderItem>();
-                dbOrder.purchasedProducts.ForEach(purchasedProduct => {
-                    var orderItem = new OrderItem();
-                    orderItem.itemId = (int)purchasedProduct.ProductId;
-                    orderItem.itemQuantity = purchasedProduct.Quantity;
-                    itemList.Add(orderItem);
-                });
-
-                this.context.Database.ExecuteSqlRaw("DELETE FROM Purchases WHERE orderId = "+dbOrder.orderId);
-                await this.context.SaveChangesAsync();
-
-                this.context.Database.ExecuteSqlRaw("DELETE FROM Orders WHERE orderId = "+dbOrder.orderId);
-                await this.context.SaveChangesAsync();
-
-                itemList.ForEach(item => {
-                    this.context.Database.ExecuteSqlRaw("UPDATE Products SET Quantity = Quantity + "+item.itemQuantity+" WHERE Id = "+item.itemId+";");
-                });
-                await this.context.SaveChangesAsync();
-
-            }catch(Exception ex){
-                        response.Success=false;
-                        response.Message=ex.Message;
-                        return response;
+            var dbOrder = await context.Orders.FirstOrDefaultAsync(order => order.orderId == id);
+            if(dbOrder == null){
+                return response;
             }
+            dbOrder.init();
+            response = await dbOrder.cancelOrder(this.context, this.mapper);
             return response;
         }
 
         public async Task<Response> Get()
         {
-            var response = new Response();
-            try{
-                var dbOrders = await this.context.Orders.ToListAsync();
-                dbOrders.ForEach(order => {
-                    //Get purchases 
-                    var purchases = this.context.Purchases
-                        .FromSqlRaw("Select * from Purchases WHERE orderId = "+order.orderId)
-                        .ToList<Purchase>();
-                    order.purchasedProducts = purchases;
-                }); 
-                response.Data = dbOrders.Select(order => this.mapper.Map<GetOrderDTO>(order)).ToList();
-            }catch(Exception ex){
-                response.Success=false;
-                response.Message = ex.Message;
-            }
+            var response = await Order.get(this.context, this.mapper);
             return response;
         }
 
         public async Task<Response> GetById(int id)
         {
-            var response = new Response();
-            try{
-                var dbOrder = await this.context.Orders.FirstOrDefaultAsync(order => order.orderId == id);
-                if(dbOrder == null){
-                    throw new Exception("an order with this id does not exist");
-                }
-                dbOrder.purchasedProducts = this.context.Purchases
-                    .FromSqlRaw("Select * from Purchases WHERE orderId = "+dbOrder.orderId)
-                    .ToList<Purchase>();
-                response.Data = this.mapper.Map<GetOrderDTO>(dbOrder);
-            }catch(Exception ex){
-                response.Success = false;
-                response.Message = ex.Message;
-            }
+            var response = await Order.getById(id, this.context, this.mapper);
             return response;
         }
 
         public async Task<Response> UpdateOrder(int id, UpdateOrderDTO updatedOrder)
-        {            
-            var response = new Response();
-
-            var discountName = "";
-            var discountReduction = 0.0;
-            var discounttotalQuantityCount = 0;
-
+        {         
+            var response = new Response();  
             //get order
             var dbOrder = await this.context.Orders.FirstOrDefaultAsync(order => order.orderId == id);
-            try{ 
-                if(dbOrder == null){
-                    throw new Exception("an order with this id does not exist");
-                }
-                else if(!updatedOrder.products.Any()){
-                    throw new Exception("products list is null");
-                }
-                dbOrder.purchasedProducts = this.context.Purchases
-                    .FromSqlRaw("Select * from Purchases WHERE orderId = "+dbOrder.orderId)
-                    .ToList<Purchase>();
-                
-                foreach (OrderItem item in updatedOrder.products) 
-                { // Loop through List with foreach
-                    //get product
-                    var product = await this.productFactory.GetProductsService(item.ProductCategory).GetById(item.itemId, false);
-                    
-                    if (product == null || product.Data == null)
-                    {
-                        throw new Exception("a product you listed does not exist");
-                    }
-                    PRODUCT mappedToProduct;
-                    if (item.ProductCategory == ProductCategory.Books)
-                    {
-                        mappedToProduct = this.mapper.Map<PRODUCT>((Book)product.Data);
-                    }
-                    else
-                    {
-                        mappedToProduct = this.mapper.Map<PRODUCT>((Stationary)product.Data);
-                    }
-                    //check if product already exists in the order
-                    var itemFromExistingOrder = dbOrder.purchasedProducts.FirstOrDefault(product => product.ProductId == item.itemId);
-                    if (itemFromExistingOrder != null){//Product already exists in order
-                        if(item.itemQuantity<=0){//if item Quantity is <= 0, remove the purchase
-                            //remove purchase record
-                            dbOrder.purchasedProducts.Remove(itemFromExistingOrder);
-                            this.context.Database.ExecuteSqlRaw("DELETE FROM Purchases WHERE PurchaseId = "+itemFromExistingOrder.PurchaseId);
-                            await this.context.SaveChangesAsync();
-
-                            //increase stock quantity
-                            this.context.Database.ExecuteSqlRaw("UPDATE Products SET Quantity = Quantity +"+itemFromExistingOrder.Quantity+" WHERE Id = "+mappedToProduct.Id+";");
-                            await this.context.SaveChangesAsync(); 
-
-                            //if order now empty remove order
-                            if(!dbOrder.purchasedProducts.Any()){ 
-                                this.context.Orders.Remove(dbOrder);
-                                await this.context.SaveChangesAsync();
-                                dbOrder = new Order();
-                            }else{
-                                dbOrder.subtotalInCent-=itemFromExistingOrder.PriceInCent*itemFromExistingOrder.Quantity;
-                                await this.context.SaveChangesAsync();                                                                                  //This will be changed when discounts implemented
-                                this.context.Database.ExecuteSqlRaw("UPDATE Orders SET subtotalInCent = "+dbOrder.subtotalInCent+", totalInCent = "+dbOrder.subtotalInCent+" WHERE orderId = "+dbOrder.orderId+";");
-                                await this.context.SaveChangesAsync(); 
-                            }
-                            continue;
-                        }
-                        if(item.itemQuantity>itemFromExistingOrder.Quantity){//increment item quantity
-                            //Get the number of this product that is available
-                            var availableQuantity = mappedToProduct.Quantity+itemFromExistingOrder.Quantity;
-                            if(availableQuantity>item.itemQuantity){
-                                //decrement quantity from stock
-                                var newStockQuantity = mappedToProduct.Quantity-(item.itemQuantity-itemFromExistingOrder.Quantity);
-                                this.context.Database.ExecuteSqlRaw("UPDATE Products SET Quantity = "+newStockQuantity+" WHERE Id = "+mappedToProduct.Id+";");
-                                await this.context.SaveChangesAsync();                                    
-                                //update purchase in purchase record
-                                this.context.Database.ExecuteSqlRaw("UPDATE Purchases SET Quantity = "+item.itemQuantity+" WHERE PurchaseId = "+itemFromExistingOrder.PurchaseId+";");
-                                await this.context.SaveChangesAsync();
-
-
-                                //increase subtotal
-                                dbOrder.subtotalInCent += (item.itemQuantity-itemFromExistingOrder.Quantity)*itemFromExistingOrder.PriceInCent;
-                                dbOrder.totalInCent += (item.itemQuantity-itemFromExistingOrder.Quantity)*itemFromExistingOrder.PriceInCent;
-                                await this.context.SaveChangesAsync();                                                                                  //This will be changed when discounts implemented
-                                this.context.Database.ExecuteSqlRaw("UPDATE Orders SET subtotalInCent = "+dbOrder.subtotalInCent+", totalInCent = "+dbOrder.subtotalInCent+" WHERE orderId = "+dbOrder.orderId+";");
-                                await this.context.SaveChangesAsync(); 
-                                dbOrder.purchasedProducts = dbOrder.purchasedProducts.Select(product => 
-                                { 
-                                    if (product.PurchaseId==itemFromExistingOrder.PurchaseId){
-                                        product.Quantity =item.itemQuantity;
-                                    } 
-                                    return product; 
-                                }).ToList();
-                                continue;
-                            }else{
-                                throw new Exception("Order can't be updated. We only have "+ mappedToProduct.Quantity+" '"+ mappedToProduct.Name+"'");
-                            } 
-                        }else if(item.itemQuantity<itemFromExistingOrder.Quantity){//decrement the quantity
-                            
-                            //update purchases
-                            this.context.Database.ExecuteSqlRaw("UPDATE Purchases SET Quantity = "+item.itemQuantity+" WHERE PurchaseId = "+itemFromExistingOrder.PurchaseId+";");
-                            await this.context.SaveChangesAsync();
-
-
-                            var decrAmount = itemFromExistingOrder.Quantity-item.itemQuantity;
-                            this.context.Database.ExecuteSqlRaw("UPDATE Products SET Quantity = Quantity +"+decrAmount+" WHERE Id = "+mappedToProduct.Id+";");
-                            await this.context.SaveChangesAsync();  
-                            
-                            dbOrder.subtotalInCent-=itemFromExistingOrder.PriceInCent*(decrAmount);
-                            dbOrder.totalInCent-=itemFromExistingOrder.PriceInCent*(decrAmount);                   
-                            dbOrder.purchasedProducts = dbOrder.purchasedProducts.Select(product => 
-                            { 
-                                if (product.PurchaseId==itemFromExistingOrder.PurchaseId){
-                                    product.Quantity =item.itemQuantity;
-                                } 
-                                return product; 
-                            }).ToList();
-                                                                                                                                            //this will change when discounts are implemented
-                            this.context.Database.ExecuteSqlRaw("UPDATE Orders SET subtotalInCent = "+dbOrder.subtotalInCent+", totalInCent = "+dbOrder.subtotalInCent+" WHERE orderId = "+dbOrder.orderId+";");
-                            await this.context.SaveChangesAsync();
-                            continue;
-                        }else{
-                            continue;
-                        }                         
-                    }else{//Product doesn't exist in order yet so can add it.
-                        var availableQuantity = mappedToProduct.Quantity;
-                        if(availableQuantity>=item.itemQuantity){
-                            //update products
-                            this.context.Database.ExecuteSqlRaw("UPDATE Products SET Quantity = "+(mappedToProduct.Quantity-item.itemQuantity)+" WHERE Id = "+mappedToProduct.Id+";");
-                            await this.context.SaveChangesAsync();
-                            var mappedToPurchase = this.mapper.Map<Purchase>(mappedToProduct);
-                            mappedToPurchase.Quantity = item.itemQuantity;
-                            mappedToPurchase.ProductId = mappedToProduct.Id;
-                            
-                            //INSERT Purchase -> This code could be tidied up
-                            this.context.Database.ExecuteSqlRaw("INSERT INTO Purchases (ProductId, Name, Description, PriceInCent, Quantity, ProductCategory, Genre, Author, PageCount, Publisher, PublicationDate, Manufacturer, Brand, orderId) VALUES ({0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, {11}, {12}, {13});", mappedToPurchase.ProductId, mappedToPurchase.Name, mappedToPurchase.Description, mappedToPurchase.PriceInCent, mappedToPurchase.Quantity, mappedToPurchase.ProductCategory, mappedToPurchase.Genre, mappedToPurchase.Author, mappedToPurchase.PageCount, mappedToPurchase.Publisher, mappedToPurchase.PublicationDate, mappedToPurchase.Manufacturer, mappedToPurchase.Brand, dbOrder.orderId);
-                            await this.context.SaveChangesAsync();      
-                            var purchases = await this.context.Purchases.FromSqlRaw("SELECT * FROM Purchases WHERE ProductId = "+(mappedToPurchase.ProductId)+" AND orderId = "+(dbOrder.orderId)+";").ToListAsync();
-                            var purchaseId = purchases.First().PurchaseId;
-                            mappedToPurchase.PurchaseId = purchaseId;
-                            dbOrder.purchasedProducts.Add(mappedToPurchase);
-                            await this.context.SaveChangesAsync();
-                            
-                            dbOrder.subtotalInCent+=mappedToPurchase.PriceInCent*item.itemQuantity;
-                            dbOrder.totalInCent+=mappedToPurchase.PriceInCent*item.itemQuantity;
-                            //Update order
-                            this.context.Database.ExecuteSqlRaw("UPDATE Orders SET subtotalInCent = "+dbOrder.subtotalInCent+", totalInCent = "+dbOrder.subtotalInCent+" WHERE orderId = "+dbOrder.orderId+";");
-                            await this.context.SaveChangesAsync();
-                            continue;
-                        }else{
-                            throw new Exception("Order can't be updated. We only have "+ mappedToProduct.Quantity+" '"+ mappedToProduct.Name+"'");
-                        }
-                    }
-                }
-            }catch(Exception ex){
-                response.Success = false;
-                response.Message = ex.Message;
-                return response;
+            if(dbOrder == null){
+                    response.Success = false;
+                    response.Message = "an order with this id does not exist";
+                    return response;
             }
-
-            //CHECK IF APPLICABLE FOR A DISCOUNT
-            //GET DISCOUNT HERE
-
-            //Lists to hold the names of the items in dborder and the categories
-            List<string> itemNamesList = new List<string>();
-            List<ProductCategory> itemProductCategoriesList = new List<ProductCategory>();
-            List<int> individualItemCount = new List<int>();
-
-            //go through each purchase in dbOrder
-            foreach (Purchase item in dbOrder.purchasedProducts) 
-            { 
-	            discounttotalQuantityCount += item.Quantity;
-                itemProductCategoriesList.Add(item.ProductCategory);
-                itemNamesList.Add(item.Name);
-                individualItemCount.Add(item.Quantity);
+            else if(!updatedOrder.products.Any()){
+                    response.Success = false;
+                    response.Message = "products list is null";
+                    return response;
             }
-            
-            //Convert Lists to Array's
-            String[] itemNamesArray = itemNamesList.ToArray();
-            ProductCategory[] itemProductCatagoriesArray = itemProductCategoriesList.ToArray();
-            int[] itemCountArray = individualItemCount.ToArray();
+            dbOrder.init();
+            response = await dbOrder.updateOrder(updatedOrder, this.context, this.mapper, this.productFactory);
+            return response;
+        }
 
-            //Specials for specific items
-            //Summer Special can only be aquired once
-            for (int i = 0; i < itemNamesArray.Length; i++) 
-            {
-                if(discounttotalQuantityCount >= 5 & itemCountArray[i] >= 1 & itemNamesArray[i] == "The Da Vinci Code") {
-                    iDiscount SummerSpecial = new summerSpecialDiscount(new basicDiscount());
-                    discountName += SummerSpecial.GetDiscountName() + ", ";
-                    discountReduction += SummerSpecial.getReduction();
-                    break;
-                }
-                if(itemCountArray[i] >= 4 & itemNamesArray[i] == "Helix Black Nylon Pencil case") {
-                    iDiscount SummerSpecial = new summerSpecialDiscount(new basicDiscount());
-                    discountName += SummerSpecial.GetDiscountName() + ", ";
-                    discountReduction += SummerSpecial.getReduction();
-                    break;
-                }   
+
+        public async Task<Response> UpdateOrderStatus(int id, String updatedStatus)
+        {         
+            var response = new Response();  
+            //get order
+            var dbOrder = await this.context.Orders.FirstOrDefaultAsync(order => order.orderId == id);
+            if(dbOrder == null){
+                    response.Success = false;
+                    response.Message = "an order with this id does not exist";
+                    return response;
             }
-
-            //Specific category discounts ie 2 for books, 3 for stationary etc
-            for (int i = 0; i < itemProductCatagoriesArray.Length; i++) 
-            {
-                if(itemCountArray[i] >= 1 & (int)itemProductCatagoriesArray[i] == 2) {
-                    iDiscount WinterSpecial = new winterMadnessDiscount(new basicDiscount());
-                    discountName += WinterSpecial.GetDiscountName() + ", ";
-                    discountReduction += WinterSpecial.getReduction();
-                    break;
-                }
-            }
-
-            //Bulk buying discounts
-            if(discounttotalQuantityCount >= 3) {
-                iDiscount basic = new basicDiscount();
-                discountName += basic.GetDiscountName() + ", ";
-                discountReduction += basic.getReduction();
-            }
-            if(discounttotalQuantityCount >= 9) {
-                iDiscount basic = new basicDiscount();
-                discountName += basic.GetDiscountName() + ", ";
-                discountReduction += basic.getReduction();
-            }
-
-            dbOrder.discountName = discountName;
-            dbOrder.discountInCent = Convert.ToInt32(dbOrder.subtotalInCent * discountReduction);
-
-            if(dbOrder.discountInCent == 0) {
-                dbOrder.discountName = "No Discount Applied";
-            }
-
-            dbOrder.totalInCent = dbOrder.subtotalInCent-dbOrder.discountInCent;
-            await this.context.SaveChangesAsync();
-            response.Data = this.mapper.Map<GetOrderDTO>(dbOrder);
+            dbOrder.init();
+            response = await dbOrder.updateOrderStatus(updatedStatus, this.context, this.mapper);
             return response;
         }
     }

@@ -18,8 +18,10 @@ namespace BookeCommerceStore.Migrations
                     orderId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     subtotalInCent = table.Column<int>(type: "int", nullable: false),
+                    discountName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     discountInCent = table.Column<int>(type: "int", nullable: false),
-                    totalInCent = table.Column<int>(type: "int", nullable: false)
+                    totalInCent = table.Column<int>(type: "int", nullable: false),
+                    status = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {

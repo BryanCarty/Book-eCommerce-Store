@@ -189,6 +189,10 @@ namespace BookeCommerceStore.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("subtotalInCent")
                         .HasColumnType("int");
 

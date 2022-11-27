@@ -9,6 +9,5 @@ namespace Book_eCommerce_Store.DTOs.Orders
     public class UpdateOrderDTO
     {
         public List<OrderItem>? products { get; set; }
-
     }
 }

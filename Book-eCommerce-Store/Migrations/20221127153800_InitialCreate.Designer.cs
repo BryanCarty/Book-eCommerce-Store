@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BookeCommerceStore.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20221121130949_InitialCreate")]
+    [Migration("20221127153800_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -187,6 +187,14 @@ namespace BookeCommerceStore.Migrations
 
                     b.Property<int>("discountInCent")
                         .HasColumnType("int");
+
+                    b.Property<string>("discountName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("subtotalInCent")
                         .HasColumnType("int");

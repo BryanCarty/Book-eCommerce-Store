@@ -10709,19 +10709,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\hotch\\.nuget\\packages\\": {}
+    "C:\\Users\\bcart\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "c:\\Users\\hotch\\Desktop\\CS4125\\Book-eCommerce-Store-main (1)\\Book-eCommerce-Store-main\\Book-eCommerce-Store\\Book eCommerce Store.csproj",
+      "projectUniqueName": "C:\\Users\\bcart\\OneDrive\\Desktop\\state-design-pattern implementation\\Book-eCommerce-Store\\Book-eCommerce-Store\\Book eCommerce Store.csproj",
       "projectName": "Book eCommerce Store",
-      "projectPath": "c:\\Users\\hotch\\Desktop\\CS4125\\Book-eCommerce-Store-main (1)\\Book-eCommerce-Store-main\\Book-eCommerce-Store\\Book eCommerce Store.csproj",
-      "packagesPath": "C:\\Users\\hotch\\.nuget\\packages\\",
-      "outputPath": "c:\\Users\\hotch\\Desktop\\CS4125\\Book-eCommerce-Store-main (1)\\Book-eCommerce-Store-main\\Book-eCommerce-Store\\obj\\",
+      "projectPath": "C:\\Users\\bcart\\OneDrive\\Desktop\\state-design-pattern implementation\\Book-eCommerce-Store\\Book-eCommerce-Store\\Book eCommerce Store.csproj",
+      "packagesPath": "C:\\Users\\bcart\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\bcart\\OneDrive\\Desktop\\state-design-pattern implementation\\Book-eCommerce-Store\\Book-eCommerce-Store\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\hotch\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\bcart\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net6.0"
@@ -10793,7 +10793,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.403\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.402\\RuntimeIdentifierGraph.json"
       }
     }
   }

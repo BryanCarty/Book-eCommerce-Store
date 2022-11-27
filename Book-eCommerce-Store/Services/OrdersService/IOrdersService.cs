@@ -17,5 +17,7 @@ namespace Book_eCommerce_Store.Services.OrdersService
         Task<Response> UpdateOrder(int id, UpdateOrderDTO updatedOrder);
 
         Task<Response> DeleteOrder(int id);
+        
+        Task<Response> UpdateOrderStatus(int id, String updatedStatus);
     }
 }
