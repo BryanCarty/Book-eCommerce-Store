@@ -28,7 +28,6 @@ namespace Book_eCommerce_Store.Controllers
                 return Ok(response);
             }
             return StatusCode(StatusCodes.Status500InternalServerError, response);
-
         }
 
         [HttpGet("{id}")]
@@ -76,8 +75,10 @@ namespace Book_eCommerce_Store.Controllers
                 response.Message = "Http Status OK";
                 return Ok(response);
             }
-            else if(response.Message.Count()>36 && response.Message.Substring(0,36) == "Order can't be updated. We only have ")
+            else if(response.Message.Count()>36 && response.Message.Substring(0,36) == "Order can't be updated. We only have")
             {
+                return Ok(response);
+            }else if(response.Message.Count()>20 && response.Message.Substring(0,20) == "Sorry, this order is"){
                 return Ok(response);
             }
             if(response.Message == "products list is null" || response.Message == "a product you listed does not exist" || response.Message == "an order with this id does not exist")
@@ -95,9 +96,27 @@ namespace Book_eCommerce_Store.Controllers
             {
                 response.Message = "Http Status OK";
                 return Ok(response);
+            }else if(response.Message.Count()>20 && response.Message.Substring(0,20) == "Sorry, this order is"){
+                return Ok(response);
             }
             return StatusCode(StatusCodes.Status500InternalServerError, response);
 
+        }
+
+        [HttpPut("{id}/status")]
+        public async Task<ActionResult<GetOrderDTO>> UpdateOrderById(int id, OrderStatus status)
+        {
+            var response = await this.ordersService.UpdateOrderStatus(id, status.status);
+            if (response.Success == true)
+            {
+                response.Message = "Http Status OK";
+                return Ok(response);
+            }
+            else if(response.Message == "an order with this id does not exist")
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, response);
+            }
+            return StatusCode(StatusCodes.Status500InternalServerError, response);
         }
     }
 }

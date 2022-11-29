@@ -37,7 +37,7 @@ namespace Book_eCommerce_Store.Controllers
         [HttpGet("{productCategory}/{id}")]
         public async Task<ActionResult<GetProductDTO>> GetById(ProductCategory productCategory, int id)
         {
-            var response = await this.productFactory.GetProductsService(productCategory).GetById(id, true);
+            var response = await this.productFactory.GetProductsService(productCategory).GetById(id);
             if (response.Success == true)
             {
                 response.Message = "Http Status OK";
