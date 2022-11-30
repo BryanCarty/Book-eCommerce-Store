@@ -4,6 +4,7 @@ using Book_eCommerce_Store.Services.OrdersService;
 using Book_eCommerce_Store.Services.ProductsService;
 using Book_eCommerce_Store.Services.ProductsService.Factory;
 using Book_eCommerce_Store.Services.UsersService;
+using Book_eCommerce_Store.Services.ObserverService;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,6 +26,7 @@ builder.Services.AddScoped<BooksService>()
 builder.Services.AddScoped<StationaryService>()
     .AddScoped<IProductsService, StationaryService>(s => s.GetService<StationaryService>());
 builder.Services.AddScoped<IOrdersService, OrdersService>();
+builder.Services.AddScoped<IObserverService, ObserverService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
