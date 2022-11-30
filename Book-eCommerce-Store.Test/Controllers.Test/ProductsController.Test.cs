@@ -66,7 +66,7 @@ namespace Book_eCommerce_Store.Test.Controllers.Test
         {
             var response = new Response { Data = It.IsAny<Book>(), Success = true, Message = It.IsAny<String>() };
 
-            _productsService.Setup(x => x.GetById(It.IsAny<int>(), It.IsAny<bool>())).ReturnsAsync(response);
+            _productsService.Setup(x => x.GetById(It.IsAny<int>())).ReturnsAsync(response);
 
             productsController = new ProductsController(_productFactory.Object);
 
@@ -85,7 +85,7 @@ namespace Book_eCommerce_Store.Test.Controllers.Test
         {
             var response = new Response { Data = null, Success = false, Message = It.IsAny<String>() };
 
-            _productsService.Setup(x => x.GetById(It.IsAny<int>(), It.IsAny<bool>())).ReturnsAsync(response);
+            _productsService.Setup(x => x.GetById(It.IsAny<int>())).ReturnsAsync(response);
 
             productsController = new ProductsController(_productFactory.Object);
 

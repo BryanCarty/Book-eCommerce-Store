@@ -60,7 +60,7 @@ namespace Book_eCommerce_Store.Test.Services.Test.ProductsService
         {
             bookService = new BooksService(_mapper.Object, mockContext.Object);
 
-            var response = await bookService.GetById(2, true);
+            var response = await bookService.GetById(2);
 
             Assert.That(response, Is.Not.Null, "Object returned was null");
             Assert.That(response.Success, Is.True, "Was not successful");
