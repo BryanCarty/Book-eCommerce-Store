@@ -1,5 +1,6 @@
 global using Book_eCommerce_Store.Models;
 using Book_eCommerce_Store.Data;
+using Book_eCommerce_Store.Services.ObserverService;
 using Book_eCommerce_Store.Services.OrdersService;
 using Book_eCommerce_Store.Services.ProductsService;
 using Book_eCommerce_Store.Services.ProductsService.Factory;
@@ -25,6 +26,8 @@ builder.Services.AddScoped<BooksService>()
 builder.Services.AddScoped<StationaryService>()
     .AddScoped<IProductsService, StationaryService>(s => s.GetService<StationaryService>());
 builder.Services.AddScoped<IOrdersService, OrdersService>();
+builder.Services.AddScoped<IObserverService, ObserverService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Book_eCommerce_Store.Data.Entities
 {
     
-    public class PRODUCT
+    public class PRODUCT 
     {
         public int Id { get; set; }
         public string Name { get; set; } = "";

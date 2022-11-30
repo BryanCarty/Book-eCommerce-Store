@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BookeCommerceStore.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20221121130949_InitialCreate")]
+    [Migration("20221129165613_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -177,6 +177,25 @@ namespace BookeCommerceStore.Migrations
                     b.ToTable("Addresses");
                 });
 
+            modelBuilder.Entity("Book_eCommerce_Store.Models.Observer", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Observers");
+                });
+
             modelBuilder.Entity("Book_eCommerce_Store.Models.Order", b =>
                 {
                     b.Property<int>("orderId")
@@ -187,6 +206,10 @@ namespace BookeCommerceStore.Migrations
 
                     b.Property<int>("discountInCent")
                         .HasColumnType("int");
+
+                    b.Property<string>("discountName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("subtotalInCent")
                         .HasColumnType("int");

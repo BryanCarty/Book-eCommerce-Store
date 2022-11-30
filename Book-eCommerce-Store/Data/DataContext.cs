@@ -20,5 +20,6 @@ namespace Book_eCommerce_Store.Data
         public DbSet<User> Users { get; set; }
         public DbSet<Address> Addresses { get; set; }
         public DbSet<Purchase> Purchases { get; set; }
+        public DbSet<Observer> Observers { get; set; }
     }
 }

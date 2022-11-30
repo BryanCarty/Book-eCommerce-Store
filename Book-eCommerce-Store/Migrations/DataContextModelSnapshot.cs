@@ -174,6 +174,25 @@ namespace BookeCommerceStore.Migrations
                     b.ToTable("Addresses");
                 });
 
+            modelBuilder.Entity("Book_eCommerce_Store.Models.Observer", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Observers");
+                });
+
             modelBuilder.Entity("Book_eCommerce_Store.Models.Order", b =>
                 {
                     b.Property<int>("orderId")

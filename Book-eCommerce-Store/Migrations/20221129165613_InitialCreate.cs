@@ -12,12 +12,27 @@ namespace BookeCommerceStore.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "Observers",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ProductId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Observers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Orders",
                 columns: table => new
                 {
                     orderId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     subtotalInCent = table.Column<int>(type: "int", nullable: false),
+                    discountName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     discountInCent = table.Column<int>(type: "int", nullable: false),
                     totalInCent = table.Column<int>(type: "int", nullable: false)
                 },
@@ -139,6 +154,9 @@ namespace BookeCommerceStore.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Addresses");
+
+            migrationBuilder.DropTable(
+                name: "Observers");
 
             migrationBuilder.DropTable(
                 name: "Products");

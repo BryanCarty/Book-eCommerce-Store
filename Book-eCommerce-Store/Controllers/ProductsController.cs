@@ -6,6 +6,9 @@ using Book_eCommerce_Store.DTOs.Products;
 using Book_eCommerce_Store.Services.ProductsService;
 using Book_eCommerce_Store.Services.ProductsService.Factory;
 using Microsoft.AspNetCore.Mvc;
+using Book_eCommerce_Store.Services.ObserverService;
+using Book_eCommerce_Store.Data;
+using Book_eCommerce_Store.Data.Entities;
 
 namespace Book_eCommerce_Store.Controllers
 {
@@ -14,6 +17,7 @@ namespace Book_eCommerce_Store.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly IProductFactory productFactory;
+        private readonly DataContext context;
 
         public ProductsController(IProductFactory productFactory)
         {
@@ -61,6 +65,21 @@ namespace Book_eCommerce_Store.Controllers
         [HttpPatch("{productCategory}/{id}")]
         public async Task<ActionResult<GetProductDTO>> UpdateProductById(ProductCategory productCategory, int id, UpdateProductDTO updatedProduct)
         {
+            var responseToUpdate = await this.productFactory.GetProductsService(productCategory).GetById(id, true);
+
+            PRODUCT productToUpdate = (PRODUCT)responseToUpdate.Data;
+
+            Console.WriteLine(updatedProduct.PriceInCent);
+            Console.WriteLine(productToUpdate.PriceInCent);
+
+            if(updatedProduct.PriceInCent < productToUpdate.PriceInCent){ //if price is reduced, notify observers
+
+                var controllerService = this.HttpContext.RequestServices.GetService<IObserverService>(); //get observer service context
+
+                ObserverController controller = new ObserverController(controllerService); //instantiate new observer controller with existing service
+                await controller.GetAllByProductId(id, true);   //notify all observers with specified product id
+            }
+
             var response = await this.productFactory.GetProductsService(productCategory).Update(id, updatedProduct);
             if (response.Success == true)
             {
