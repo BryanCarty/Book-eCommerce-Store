@@ -17,7 +17,7 @@ namespace Book_eCommerce_Store.Data
         public DataContext() { }
 
 
-        public DbSet<PRODUCT> Products {get; set; }
+        public virtual DbSet<PRODUCT> Products {get; set; }
         public DbSet<Order> Orders { get; set; }
         public virtual DbSet<User> Users { get; set; }
         public DbSet<Address> Addresses { get; set; }
