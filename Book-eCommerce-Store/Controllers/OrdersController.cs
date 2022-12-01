@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Book_eCommerce_Store.Controllers
 {
     [ApiController]
-    [Route("api/v1/[controller]")]
+    [Route("api/[controller]")]
     public class OrdersController : ControllerBase
     {
         private readonly IOrdersService ordersService;

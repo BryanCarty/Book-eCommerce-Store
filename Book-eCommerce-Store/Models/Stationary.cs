@@ -5,6 +5,7 @@ namespace Book_eCommerce_Store.Models
 {
     public class Stationary : PRODUCT
     {
+        public Stationary() { }
         public Stationary(int Id, string Name, string Description, int PriceInCent, int Quantity,
             string Manufacturer, string Brand) 
         { 
