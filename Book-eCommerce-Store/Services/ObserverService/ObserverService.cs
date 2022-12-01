@@ -75,5 +75,16 @@ namespace Book_eCommerce_Store.Services.ObserverService
             serviceResponse.Data = dbObservers;
             return serviceResponse;
         }
+
+        public async Task<Response> NotifyObserver(int observerid)
+        {
+            var serviceResponse = new Response();
+            var dbObserver = await _context.Observers.FirstOrDefaultAsync(c => c.Id == observerid);
+            dbObserver.OnSale = true;
+
+            await _context.SaveChangesAsync();
+            serviceResponse.Data = dbObserver;
+            return serviceResponse;
+        }
     }
 }

@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+  <!-- <ProjectReference Include = "../BlazorTestProject/BlazorTestProject.csproj" /> -->
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
