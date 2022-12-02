@@ -1,4 +1,9 @@
-namespace Book_eCommerce_Store.Models
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace BlazorTestProject.Models
 {
     public class Observer
     {
@@ -6,5 +11,6 @@ namespace Book_eCommerce_Store.Models
         public int ProductId { get; set; }
         public int UserId { get; set; }
         public bool OnSale { get; set; }
+
     }
 }

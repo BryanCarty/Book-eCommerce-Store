@@ -43,7 +43,11 @@ namespace Book_eCommerce_Store.Controllers
                     Console.WriteLine("UserId: " + observer.UserId);
                     Console.WriteLine("ProductId: " + observer.ProductId);
                     //notify user with observer.UserID here
-                    //NotifyObserver(observer.UserId);
+                    await NotifyObserver(observer.Id);
+
+                    //Send server sent event / email / push notification to user with userId here by checking if they have an active session
+                    //OnSale attribute will be stored in DB regardless so user can see when they go to view their watchlist
+                    //PushNotification(obsever.UserId)
                 }
             }
             return Ok(response);
@@ -63,6 +67,11 @@ namespace Book_eCommerce_Store.Controllers
         [HttpDelete("{observerid}")]
         public async Task<ActionResult<Response>> RemoveObserver(int observerid){
             return Ok(await _observerService.RemoveObserver(observerid));
+        }
+
+        [HttpPut]
+        public async Task<ActionResult<Response>> NotifyObserver(int observerid){
+            return Ok(await _observerService.NotifyObserver(observerid));
         }
 
         //[HttpGet("notify/{ProductId}")]

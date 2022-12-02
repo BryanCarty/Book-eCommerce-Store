@@ -8,6 +8,7 @@ using Book_eCommerce_Store.Services.ObserverService;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+var  MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
 // Add services to the container.
 builder.Services.AddDbContext<DataContext>(options =>{
@@ -27,6 +28,22 @@ builder.Services.AddScoped<StationaryService>()
     .AddScoped<IProductsService, StationaryService>(s => s.GetService<StationaryService>());
 builder.Services.AddScoped<IOrdersService, OrdersService>();
 builder.Services.AddScoped<IObserverService, ObserverService>();
+
+builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:10069/") });
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: "AllowBlazerOrigin",
+                      builder =>
+                      {
+                          builder.WithOrigins(
+                            // "http://localhost:5041",
+                            //                   "https://localhost:10069",
+                                              "https://localhost:7147",
+                                              "http://localhost:5090");
+                      });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -37,6 +54,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseRouting();
+
+app.UseCors("AllowBlazerOrigin");
 
 app.UseAuthorization();
 

@@ -1,0 +1,83 @@
+@page "/call-web-api"
+@inject HttpClient httpClient
+@using  BlazorTestProject.Models
+@using Newtonsoft.Json.Linq
+
+<h3>List of Observers</h3>
+
+
+@if (Observers == null)
+{
+    <p>><em>Loading...</em></p>
+}
+else{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>UserId</th>
+                <th>ProductId</th>
+                <th>OnSale</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var observer in Observers)
+            {
+                <tr>
+                    <td>
+                        @observer.Id
+                    </td>
+                    <td>
+                        @observer.UserId
+                    </td>
+                    <td>
+                        @observer.ProductId
+                    </td>
+                    <td>
+                        @observer.OnSale
+                    </td>
+                </tr>
+                
+            }
+        </tbody>
+    </table>
+}
+
+@code{
+    public List<Observer> Observers = new List<Observer>();
+    
+    protected override async Task OnInitializedAsync() { 
+
+        var responseMessage = await httpClient.GetAsync("/api/Observer/GetAll");
+
+        if (responseMessage.IsSuccessStatusCode){
+
+            string responseBody = await responseMessage.Content.ReadAsStringAsync();
+
+            JObject json = JObject.Parse(responseBody);
+
+            var data = json["data"].ToString();
+
+            JArray jsonObservers = (JArray)json["data"];
+
+            for (int i = 0; i < jsonObservers.Count; i++)
+            {
+                    int tempId =  Int32.Parse(jsonObservers[i]["id"].ToString());
+                    int tempUserId = Int32.Parse(jsonObservers[i]["userId"].ToString());
+                    int tempProductId = Int32.Parse(jsonObservers[i]["productId"].ToString());
+                    bool tempOnSale= Boolean.Parse(jsonObservers[i]["onSale"].ToString());
+
+                    Observer tempObserver = new Observer();
+                    tempObserver.Id = tempId;
+                    tempObserver.UserId = tempUserId;
+                    tempObserver.ProductId = tempProductId;
+                    tempObserver.OnSale = tempOnSale;
+
+                    Observers.Add(tempObserver);
+            }
+
+        }else{
+            Console.WriteLine("Request Failed");
+        }
+    }
+}

@@ -13,5 +13,6 @@ namespace Book_eCommerce_Store.Services.ObserverService
         Task<Response> GetObserverByUserId(int userid);
         Task<Response> AddObserver(Observer newObserver);
         Task<Response> RemoveObserver(int observerid);
+        Task<Response> NotifyObserver(int observerid);
     }
 }
